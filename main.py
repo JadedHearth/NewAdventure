@@ -1,8 +1,10 @@
 #!/usr/local/bin/python3.9
 # Not compatible with windows due to escape codes being used.
 
-import curses
 from config import *
+
+import curses
+from time import sleep
 from PIL import Image
 import numpy as np
 
@@ -39,12 +41,44 @@ class ImageManager:
             cursesColorArray.append(rowArray)
         return cursesColorArray
     
-class WindowManager:
+class MapManager:
     """
-    Class for each main window.
+    Class for the map window.
     """
-    def __init__(self, scr) -> None:
-        pass
+    def __init__(self) -> None:
+        self.ImgManager = ImageManager()
+        self. mapArray = self.ImgManager.loadImage(FileLocation.MAPIMAGE)
+        self.mapPad = curses.newpad(int(Config.HEIGHT), int(Config.WIDTH))
+
+    def prerefresh(self) -> None:
+        for y in range(0, Config.HEIGHT):
+            for x in range(0, int(Config.WIDTH/2)):
+                self.mapPad.addch(y,x, ord('@'), curses.color_pair(self.mapArray[y][x]))
+        self.mapPad.noutrefresh(0,1, 0,int(Config.WIDTH / 2), Config.HEIGHT + 1,int(Config.WIDTH-2))
+
+
+class StatusManager:
+    """
+    Class for the status window.
+    """
+    def __init__(self) -> None:
+        self.statusWindow = curses.newwin(int(Config.HEIGHT/2), int(Config.WIDTH / 2 - 1), 0, 0)
+        self.statusWindow.border()
+
+    def prerefresh(self) -> None:
+        self.statusWindow.noutrefresh()
+
+class OptionsManager:
+    """
+    Class for the options window.
+    """
+    def __init__(self) -> None:
+        self.optionsWindow = curses.newwin(int(Config.HEIGHT/2), int(Config.WIDTH / 2 - 1), int(Config.HEIGHT / 2), 0)
+        self.optionsWindow.border()
+    
+    def prerefresh(self) -> None:
+        self.optionsWindow.noutrefresh()
+
 
 def emulatedWindowSetup(height:int,width:int) -> None:
     print(f"\033[8;{height};{width}t")
@@ -61,27 +95,13 @@ def checkRequirements() -> dict:
     passedDict.update({"ChangableColors":curses.can_change_color()})
     return passedDict
 
-def displayMap(window) -> None:
-    imagePath = "/Users/maximzmudzinski/Coding/NewAdventure/images/MAPBMP.bmp"
-
-def displayOptions(window) -> None:
-    print("test")
-
-def displayStatus(window) -> None:
-    print("test")
-
-def refreshWindows(windows:list) -> None:
-    for window in windows:
-        window.noutrefresh()
-    curses.doupdate()
-
 def main(stdscr) -> None:
 
     selectedX = 0 # Switches between 0 and 1, switches between left windows and right map window.
     selectedY = 0 # Switches between 0 and 1, switches between top status window and bottom options window.
     inMapView = False
 
-    # Initial Setup
+    # Initial Screen
     stdscr.clear()
     emulatedWindowSetup(Config.HEIGHT, Config.WIDTH)
     colorSetup()
@@ -93,26 +113,18 @@ def main(stdscr) -> None:
 
     stdscr.refresh()
 
-    # Map loading
+    # Init of windows
 
-    ImgManager = ImageManager()
-    mapImagePath = "/Users/maximzmudzinski/Coding/NewAdventure/images/MAPBMP.bmp"
-    mapArray = ImgManager.loadImage(mapImagePath)
+    mapWindow = MapManager()
+    mapWindow.prerefresh()
 
-    mapPad = curses.newpad(int(Config.HEIGHT), int(Config.WIDTH))
-    for y in range(0, Config.HEIGHT):
-        for x in range(0, int(Config.WIDTH/2)):
-            mapPad.addch(y,x, ord('@'), curses.color_pair(mapArray[y][x]))
-    mapPad.refresh(0,1, 0,int(Config.WIDTH / 2), Config.HEIGHT + 1,int(Config.WIDTH-2))
+    statusWindow = StatusManager()
+    statusWindow.prerefresh()
 
-    # The other windows
+    optionsWindow = OptionsManager()
+    optionsWindow.prerefresh()
 
-    statusWindow = curses.newwin(int(Config.HEIGHT/2), int(Config.WIDTH / 2 - 1), 0, 0)
-    statusWindow.border()
-    optionsWindow = curses.newwin(int(Config.HEIGHT/2), int(Config.WIDTH / 2 - 1), int(Config.HEIGHT / 2), 0)
-    optionsWindow.border()
-
-    refreshWindows([statusWindow, optionsWindow])
+    curses.doupdate()
 
     # Main loop
     while True:
@@ -120,7 +132,7 @@ def main(stdscr) -> None:
         if 0 < key < 256:
             key = chr(key)
             if key in ' \n':
-                displayMap()
+                pass
             elif key in 'Qq':
                 break
             else:
@@ -136,6 +148,7 @@ def main(stdscr) -> None:
             if not inMapView and selectedX == 0:  selectedX = 1
         elif key == curses.KEY_RESIZE:
             emulatedWindowSetup(Config.HEIGHT, Config.WIDTH)
+            mapWindow.prerefresh()
         else:
             # Ignore incorrect keys
             pass

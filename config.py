@@ -4,3 +4,6 @@ class Config:
     # nvm you aren't allowed to change this now, the map image relies on it.
     HEIGHT = 46
     WIDTH = 204
+
+class FileLocation:
+    MAPIMAGE = "/Users/maximzmudzinski/Coding/NewAdventure/images/MAPBMP.bmp"
