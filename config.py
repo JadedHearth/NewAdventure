@@ -1,3 +1,5 @@
+from pathlib import Path
+
 class Config:
     # My height and width is catered specifically for my computer (;
     # Probably has to be even
@@ -6,4 +8,5 @@ class Config:
     WIDTH = 204
 
 class FileLocation:
-    MAPIMAGE = "/Users/maximzmudzinski/Coding/NewAdventure/images/MAPBMP.bmp"
+    MAPIMAGE = Path.resolve("../images/MAPBMP.bmp")
+    BIGMAPIMAGE = Path.resolve("../images/BIGMAPBMP.bmp")

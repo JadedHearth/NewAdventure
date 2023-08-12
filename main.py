@@ -2,11 +2,11 @@
 # Not compatible with windows due to escape codes being used.
 
 from config import *
-
-import curses
 from mainWindows.StatusManager import StatusManager
 from mainWindows.OptionsManager import OptionsManager
 from mainWindows.MapManager import MapManager
+
+import curses
 
 def emulatedWindowSetup(height:int,width:int) -> None:
     print(f"\033[8;{height};{width}t")
@@ -22,6 +22,10 @@ def checkRequirements() -> dict:
     passedDict.update({"HasColors":curses.has_colors()}) # Two below for map (:
     passedDict.update({"ChangableColors":curses.can_change_color()})
     return passedDict
+
+def doPrerefresh(windows:list) -> None:
+    for window in windows:
+        window.prerefresh()
 
 def main(stdscr) -> None:
     inMapView = False
@@ -41,14 +45,9 @@ def main(stdscr) -> None:
     # Init of windows
 
     mapWindow = MapManager()
-    mapWindow.prerefresh()
-
     statusWindow = StatusManager()
-    statusWindow.prerefresh()
-
     optionsWindow = OptionsManager()
-    optionsWindow.prerefresh()
-
+    doPrerefresh([mapWindow, statusWindow, optionsWindow])
     curses.doupdate()
 
     # Main loop
@@ -65,22 +64,24 @@ def main(stdscr) -> None:
                     inMapView = False 
                 else: 
                     inMapView = True
+            elif key in "Xx":
+                mapWindow.switchMap()
             else:
                 # Ignore incorrect keys
                 pass
         elif key == curses.KEY_UP:
-            optionsWindow.changeOptions(1)
-            pass
+            if inMapView: mapWindow.moveMap(move_y=-1)
+            else: optionsWindow.changeOptions(1)
         elif key == curses.KEY_DOWN:
-            optionsWindow.changeOptions(0)
-            pass
+            if inMapView: mapWindow.moveMap(move_y=1)
+            else: optionsWindow.changeOptions(0)
         elif key == curses.KEY_LEFT:
-            pass
+            if inMapView: mapWindow.moveMap(move_x=1)
         elif key == curses.KEY_RIGHT:
-            pass
+            if inMapView: mapWindow.moveMap(move_x=-1)
         elif key == curses.KEY_RESIZE: # does not currently work properly. Need to rerender the rest.
             emulatedWindowSetup(Config.HEIGHT, Config.WIDTH)
-            mapWindow.prerefresh()
+            doPrerefresh([mapWindow, statusWindow, optionsWindow])
         else:
             # Ignore incorrect keys
             pass

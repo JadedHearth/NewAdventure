@@ -18,7 +18,7 @@ class ImageManager:
         self.usedColors = []
         self.cursesColorDict = {}
 
-    def loadImage(self, imagePath:str) -> list: # Relies on numpy and Pillow (PIL) 
+    def loadImage(self, imagePath) -> list: # Relies on numpy and Pillow (PIL) 
         """
         Returns a list of the colors of each pixel in the image.
         TODO LT: remove these annoying dependencies. Numpy *should* be the easier one to remove, but both should be possible.
