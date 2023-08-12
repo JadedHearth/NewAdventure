@@ -1,6 +1,6 @@
 # NewAdventure
 
-A ***better*** adaptation of my old *Adventure* python game that I made in 2020.
+A ***better*** adaptation of my old [*Adventure*](https://github.com/WoodenMaxim/adventure) python game that I made in 2020.
 This time, with *curses*!
 And *a map*!
 
