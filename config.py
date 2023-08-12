@@ -8,5 +8,7 @@ class Config:
     WIDTH = 204
 
 class FileLocation:
-    MAPIMAGE = Path.resolve("../images/MAPBMP.bmp")
-    BIGMAPIMAGE = Path.resolve("../images/BIGMAPBMP.bmp")
+    MAPIMAGE = Path(f"{__file__}/../images/MAPBMP.bmp/MAPBMP.bmp").parent.resolve()
+    BIGMAPIMAGE = Path(f"{__file__}/../images/LARGEMAP.bmp/LARGEMAP.bmp").parent.resolve()
+
+    
